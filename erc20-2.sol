@@ -18,10 +18,17 @@ contract myToken{
         balances[msg.sender]= _initialSupply;// all tokens are assigned to deployer
     }
 
+    //EVENTS to log the important actions
+    event Transfer(address indexed from, address indexed  To, uint value);
+    event Approval(address indexed owner, address indexed spender, uint value);
+
+
     modifier OwnerCall{
         require(msg.sender ==Owner);
         _;
     }
+
+
 
     function totalSupply()public view returns(uint){
         return total_suply;
@@ -36,13 +43,20 @@ contract myToken{
         require(_getter != address(0) && _getter != msg.sender);
         balances[msg.sender] -= _amount;
         balances[_getter] += _amount;
+
+        //emit the log
+        emit Transfer(msg.sender, _getter, _amount);
+
         return  true;
     }
 
     // approve a third party address of an allowance
-    function Approval(address _spender, uint _amount) public OwnerCall returns(bool){
+    function approval(address _spender, uint _amount) public OwnerCall returns(bool){
         require(_spender != address(0));
         allowances[msg.sender][_spender] = _amount;
+
+        //emit the log
+        emit Approval(Owner, _spender, _amount);
         return true;
     }
 
@@ -57,10 +71,13 @@ contract myToken{
         require(balances[Owner]> _amount);
         require(_recipient != address(0));
 
-        balances[Owner] -= _amount;
-        allowances[Owner][msg.sender] -= _amount;
+        balances[Owner] -= _amount;// balance from the owner is deducted
+        allowances[Owner][msg.sender] -= _amount;// allowance amount is deducted
 
         balances[_recipient] += _amount;
+
+        //emit the transfer log
+        emit Transfer(Owner, _recipient, _amount);
         return  true;
     }
 
