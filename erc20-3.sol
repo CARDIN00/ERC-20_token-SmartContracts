@@ -21,8 +21,6 @@ contract myToken{
     //EVENTS to log the important actions
     event Transfer(address indexed from, address indexed  To, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
-    event MINT(address indexed To, uint amount);
-    event BURN(address indexed From, uint amount);
 
 
     modifier OwnerCall{
@@ -67,6 +65,27 @@ contract myToken{
         return allowances[Owner][_spender];   
     }
 
+    //increase allowance
+    function IncreaseAllowance(address _spender, uint _increase)public  returns (bool){
+        require(_spender != address(0));
+        
+        allowances[msg.sender][_spender] += _increase;
+        emit Approval(msg.sender, _spender, _increase);
+        return true;
+
+    }
+    //decrease allowance
+    function decreaseAllowance(address _spender, uint _decrese)public  returns (bool){
+        require(_spender != address(0));
+        require(allowances[msg.sender][_spender] >= _decrese);
+
+        allowances[msg.sender][_spender] -= _decrese;
+        emit Approval(msg.sender, _spender, _decrese);
+
+        return  true;
+    }
+
+
     //function to let the allowed person transfer the amount
     function transferFromThirdParty( address _recipient, uint _amount)public returns (bool){
         require(allowances[Owner][msg.sender] > _amount,"you are not elligibe for this mush transfer");
@@ -81,26 +100,6 @@ contract myToken{
         //emit the transfer log
         emit Transfer(Owner, _recipient, _amount);
         return  true;
-    }
-
-    //mint the amount of the tokens of the owner
-    function mintTokens(address _To,uint _amount)public OwnerCall {
-      require(_To != address(0),"you need to enter a valid address");
-      balances[_To] += _amount;
-      total_suply += _amount;//add to total suply.
-
-      emit MINT(_To, _amount);
-      emit Transfer(address(0), _To, _amount);
-    }
-
-    function burnToken(address _from, uint _amount) public OwnerCall{
-      require(_from != address(0));
-      balances[_from] -= _amount;
-     total_suply -= _amount;
-
-     emit BURN(_from, _amount);
-     emit Transfer(msg.sender, address(0),_amount);
-
     }
 
 
