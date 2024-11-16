@@ -35,6 +35,11 @@ contract myToken{
         _;
     }
 
+    modifier WhenNotPaused(){
+      require(!Paused, "the contract is paused right now");
+      _;
+    }
+
 
 
     function totalSupply()public view returns(uint){
@@ -45,7 +50,7 @@ contract myToken{
         return balances[_account];
     }
 
-    function transfer(address _getter, uint _amount)public returns (bool){
+    function transfer(address _getter, uint _amount)public WhenNotPaused returns (bool){
         require(balances[msg.sender]>= _amount,"you dont have enough balance");
         require(_getter != address(0) && _getter != msg.sender);
         balances[msg.sender] -= _amount;
@@ -94,7 +99,7 @@ contract myToken{
 
 
     //function to let the allowed person transfer the amount
-    function transferFromThirdParty( address _recipient, uint _amount)public returns (bool){
+    function transferFromThirdParty( address _recipient, uint _amount)public WhenNotPaused returns (bool){
         require(allowances[Owner][msg.sender] > _amount,"you are not elligibe for this mush transfer");
         require(balances[Owner]> _amount);
         require(_recipient != address(0));
